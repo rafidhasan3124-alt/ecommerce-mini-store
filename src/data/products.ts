@@ -1,0 +1,48 @@
+import { Product } from '../types/product';
+
+export const mockProducts: Product[] = [
+  {
+    id: '1',
+    title: 'Premium Wireless Headphones',
+    description: 'High-quality wireless headphones with noise cancellation and 30-hour battery life.',
+    price: 19999,
+    imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500',
+    stripePriceId: 'price_1Tx3y3L4Re7ehxRnFP88TSPn',
+    category: 'Electronics',
+    inStock: true,
+    createdAt: new Date(),
+  },
+  {
+    id: '2',
+    title: 'Minimalist Backpack',
+    description: 'Water-resistant, lightweight backpack with laptop sleeve and multiple compartments.',
+    price: 5999,
+    imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500',
+    stripePriceId: 'price_1Tx4EML4Re7ehxRnpO4hPGpN',
+    category: 'Accessories',
+    inStock: true,
+    createdAt: new Date(),
+  },
+  {
+    id: '3',
+    title: 'Smart Fitness Tracker',
+    description: 'Track your steps, heart rate, and sleep patterns with this sleek fitness band.',
+    price: 7999,
+    imageUrl: 'https://images.unsplash.com/photo-1576243345690-4e4b79b63288?w=500',
+    stripePriceId:'price_1Tx4G7L4Re7ehxRnh1kG41HS',
+    category: 'Wearables',
+    inStock: false,
+    createdAt: new Date(),
+  },
+  {
+    id: '4',
+    title: 'Eco-Friendly Water Bottle',
+    description: 'Insulated stainless steel bottle that keeps drinks cold for 24 hours.',
+    price: 2999,
+    imageUrl: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500',
+    stripePriceId:'price_1Tx4HVL4Re7ehxRn9YGYiV2I',
+    category: 'Lifestyle',
+    inStock: true,
+    createdAt: new Date(),
+  },
+];

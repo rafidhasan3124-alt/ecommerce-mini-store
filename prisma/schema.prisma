@@ -1,0 +1,33 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id             String   @id @default(cuid())
+  title          String
+  description    String?
+  price          Int
+  imageUrl       String?
+  stripePriceId  String
+  category       String?
+  inStock        Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Order {
+  id             String   @id @default(cuid())
+  items          String   // JSON string of cart items
+  total          Int
+  status         String   @default("pending")
+  customerEmail  String?
+  stripeSessionId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
