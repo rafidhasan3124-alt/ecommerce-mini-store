@@ -10,7 +10,7 @@ export const mockProducts: Product[] = [
     stripePriceId: 'price_1Tx3y3L4Re7ehxRnFP88TSPn',
     category: 'Electronics',
     inStock: true,
-    createdAt: new Date(),
+    createdAt: new Date().toISOString(),
   },
   {
     id: '2',
@@ -21,7 +21,7 @@ export const mockProducts: Product[] = [
     stripePriceId: 'price_1Tx4EML4Re7ehxRnpO4hPGpN',
     category: 'Accessories',
     inStock: true,
-    createdAt: new Date(),
+    createdAt: new Date().toISOString(),
   },
   {
     id: '3',
@@ -32,7 +32,7 @@ export const mockProducts: Product[] = [
     stripePriceId:'price_1Tx4G7L4Re7ehxRnh1kG41HS',
     category: 'Wearables',
     inStock: false,
-    createdAt: new Date(),
+    createdAt: new Date().toISOString(),
   },
   {
     id: '4',
@@ -43,6 +43,6 @@ export const mockProducts: Product[] = [
     stripePriceId:'price_1Tx4HVL4Re7ehxRn9YGYiV2I',
     category: 'Lifestyle',
     inStock: true,
-    createdAt: new Date(),
+    createdAt: new Date().toISOString(),
   },
 ];

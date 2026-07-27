@@ -8,7 +8,6 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('all');
@@ -19,11 +18,9 @@ export default function ShopPage() {
         const response = await fetch('/api/products');
         const data = await response.json();
         setProducts(data.products || mockProducts);
-        setFilteredProducts(data.products || mockProducts);
       } catch (error) {
         console.error('Error loading products:', error);
         setProducts(mockProducts);
-        setFilteredProducts(mockProducts);
       } finally {
         setLoading(false);
       }
@@ -32,27 +29,17 @@ export default function ShopPage() {
     loadProducts();
   }, []);
 
-  // Filter products
-  useEffect(() => {
-    let filtered = products;
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter((product) =>
-        product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  // Filter products during render
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = searchTerm
+      ? product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Category filter
-    if (category !== 'all') {
-      filtered = filtered.filter((product) =>
-        product.category.toLowerCase() === category.toLowerCase()
-      );
-    }
-
-    setFilteredProducts(filtered);
-  }, [searchTerm, category, products]);
+      : true;
+    const matchesCategory = category !== 'all'
+      ? product.category.toLowerCase() === category.toLowerCase()
+      : true;
+    return matchesSearch && matchesCategory;
+  });
 
   // Get unique categories
   const categories = ['all', ...new Set(products.map((p) => p.category.toLowerCase()))];
