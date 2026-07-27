@@ -1,10 +1,15 @@
-import Stripe from 'stripe';
+import Stripe from "stripe";
 
 if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY is not defined in environment variables');
+  throw new Error("STRIPE_SECRET_KEY is not defined in environment variables");
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  typescript: true,
-});
-
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+export function formatPrice(amount: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(amount / 100);
+}
+

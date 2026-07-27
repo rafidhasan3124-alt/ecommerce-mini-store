@@ -1,33 +1,33 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import Navbar from '@/components/layout/Navbar';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "E-Commerce Mini-Store",
-  description: "A modern Next.js e-commerce store.",
+  title: 'ShopStore - E-Commerce Mini Store',
+  description: 'Your one-stop shop for premium products',
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en">
+      <body className={inter.className}>
+        <Navbar />
+        <main className="min-h-screen bg-gray-50">
+          {children}
+        </main>
+        <footer className="bg-white border-t border-gray-200 py-6">
+          <div className="max-w-6xl mx-auto px-4 text-center text-gray-600 text-sm">
+            © 2026 ShopStore. All rights reserved. Built with ❤️
+          </div>
+        </footer>
+      </body>
     </html>
   );
 }
