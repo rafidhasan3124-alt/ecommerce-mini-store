@@ -5,17 +5,27 @@ import { formatPrice } from '@/lib/stripe';
 import Link from 'next/link';
 import Image from 'next/image';
 import Button from '@/components/ui/Button';
+import CheckoutButton from '@/components/checkout/CheckoutButton';
 import { TrashIcon } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
 
 export default function CartPage() {
   const { items, totalItems, subtotal, removeItem, updateQuantity, clearCart } = useCartStore();
+
+  const handleClearCart = () => {
+    if (items.length === 0) return;
+    if (window.confirm('Are you sure you want to clear your cart?')) {
+      clearCart();
+      toast.success('Cart cleared');
+    }
+  };
 
   if (items.length === 0) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-16 text-center">
         <div className="text-6xl mb-4">🛒</div>
         <h1 className="text-3xl font-bold text-gray-900 mb-4">Your Cart is Empty</h1>
-        <p className="text-gray-600 mb-8">Looks like you haven&apos;t added any items yet.</p>
+        <p className="text-gray-600 mb-8">Looks like you haven't added any items yet.</p>
         <Link href="/shop">
           <Button size="lg">Start Shopping</Button>
         </Link>
@@ -32,55 +42,73 @@ export default function CartPage() {
         <div className="lg:w-2/3">
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
             <div className="divide-y divide-gray-200">
-              {items.map((item) => (
-                <div key={item.productId} className="p-4 flex items-center gap-4">
-                  <Image
-                    src={item.product.imageUrl || '/placeholder.png'}
-                    alt={item.product.title}
-                    width={80}
-                    height={80}
-                    className="w-20 h-20 object-cover rounded-lg"
-                  />
-                  <div className="flex-1">
-                    <Link href={`/product/${item.product.id}`}>
-                      <h3 className="font-semibold text-gray-900 hover:text-blue-600">
-                        {item.product.title}
-                      </h3>
-                    </Link>
-                    <p className="text-blue-600 font-bold">{formatPrice(item.product.price)}</p>
+              {items.map((item) => {
+                const imageUrl = item.product.imageUrl || '/placeholder-image.jpg';
+                
+                return (
+                  <div key={item.productId} className="p-4 flex items-center gap-4">
+                    <div className="relative w-20 h-20 flex-shrink-0">
+                      <Image
+                        src={imageUrl}
+                        alt={item.product.title}
+                        fill
+                        className="object-cover rounded-lg"
+                        sizes="80px"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/placeholder-image.jpg';
+                        }}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <Link href={`/product/${item.product.id}`}>
+                        <h3 className="font-semibold text-gray-900 hover:text-blue-600 truncate">
+                          {item.product.title}
+                        </h3>
+                      </Link>
+                      <p className="text-blue-600 font-bold">{formatPrice(item.product.price)}</p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <button
+                        onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                        className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100"
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                        className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100"
+                      >
+                        +
+                      </button>
+                      <button
+                        onClick={() => {
+                          removeItem(item.productId);
+                          toast.success(`${item.product.title} removed from cart`);
+                        }}
+                        className="ml-2 text-red-500 hover:text-red-700"
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                      className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100"
-                    >
-                      -
-                    </button>
-                    <span className="w-8 text-center">{item.quantity}</span>
-                    <button
-                      onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                      className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100"
-                    >
-                      +
-                    </button>
-                    <button
-                      onClick={() => removeItem(item.productId)}
-                      className="ml-2 text-red-500 hover:text-red-700"
-                    >
-                      <TrashIcon className="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
-          <button
-            onClick={clearCart}
-            className="mt-4 text-red-600 hover:text-red-700 text-sm font-medium"
-          >
-            Clear Cart
-          </button>
+          <div className="flex justify-between items-center mt-4">
+            <button
+              onClick={handleClearCart}
+              className="text-red-600 hover:text-red-700 text-sm font-medium"
+            >
+              Clear Cart
+            </button>
+            <Link href="/shop" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+              Continue Shopping →
+            </Link>
+          </div>
         </div>
 
         {/* Order Summary */}
@@ -103,9 +131,8 @@ export default function CartPage() {
                 </div>
               </div>
             </div>
-            <Button size="lg" className="w-full mt-6">
-              Proceed to Checkout
-            </Button>
+
+            <CheckoutButton />
           </div>
         </div>
       </div>
