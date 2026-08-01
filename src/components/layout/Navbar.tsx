@@ -25,6 +25,9 @@ export default function Navbar() {
             <Link href="/shop" className="text-gray-700 hover:text-blue-600 transition">
               Shop
             </Link>
+            <Link href="/orders" className="text-gray-700 hover:text-blue-600 transition">
+              Orders
+            </Link>
           </div>
 
           {/* Cart Icon with Badge */}

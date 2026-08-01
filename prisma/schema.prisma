@@ -8,6 +8,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  password       String   // Hashed
+  name           String
+  phone          String?
+  role           UserRole @default(USER)
+  emailVerified  Boolean  @default(false)
+  adresses       Adress[]
+  orders         Order[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Adress{
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  street         String
+  city           String
+  state          String
+  zipCode        String
+  country        String   @default("US")
+  isDefault      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+}
+
 model Product {
   id             String   @id @default(cuid())
   title          String
@@ -17,17 +44,50 @@ model Product {
   stripePriceId  String
   category       String?
   inStock        Boolean  @default(true)
+  stockQuantity  Int      @default(0)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  OrderItem      OrderItem[]
 }
 
 model Order {
   id             String   @id @default(cuid())
-  items          String   // JSON string of cart items
+  userId         String
+  user           User     @relation(fields: [userId], references:[id])
+  email          String
+  phone          String?
+  shippingAddress String     //JSON string of address 
+  currency       String   @default("usd")
+  items          OrderItem[]
   total          Int
-  status         String   @default("pending")
+  status         OrderStatus   @default(PENDING)
   customerEmail  String?
-  stripeSessionId String?
+  stripeSessionId String?      @unique
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+
+model OrderItem{
+  id             String   @id @default(cuid())
+  orderId        String
+  productId      String
+  quantity       Int
+  price          Int     //price at time to purchase
+  order          Order    @relation(fields: [orderId],references:[id])
+  product        Product  @relation(fields: [productId], references: [id])
+}
+
+
+enum UserRole{
+  USER
+  ADMIN
+}
+
+enum OrderStatus{
+  PENDING
+  PAID
+  SHIPPED 
+  DELIVERED
+  CANCELLED
 }
