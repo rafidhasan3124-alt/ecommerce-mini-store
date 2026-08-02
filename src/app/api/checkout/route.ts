@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 
+interface CartItem {
+  product: { id: string; stripePriceId: string; price: number; title: string; };
+  quantity: number;
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Get cart items from request body
@@ -18,14 +23,14 @@ export async function POST(request: NextRequest) {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
     // Create line items for Stripe
-    const lineItems = items.map((item: any) => ({
+    const lineItems = items.map((item: CartItem) => ({
       price: item.product.stripePriceId,
       quantity: item.quantity,
     }));
 
     // Calculate total amount
     const totalAmount = items.reduce(
-      (sum: number, item: any) => sum + item.product.price * item.quantity,
+      (sum: number, item: CartItem) => sum + item.product.price * item.quantity,
       0
     );
 
@@ -46,25 +51,28 @@ export async function POST(request: NextRequest) {
         allowed_countries: ['US', 'CA', 'GB', 'DE', 'FR', 'AU'],
       },
     });
+    const currentUser = await import('@/lib/auth').then(m => m.getCurrentUser());
 
     // Create order in database with PENDING status
-const order = await prisma.order.create({
-  data: {
-    customerEmail: email || "guest@example.com",
-    total: totalAmount,
-    status: "pending",
-    stripeSessionId: session.id,
+    const order = await prisma.order.create({
+      data: {
+        userId: currentUser?.userId || "guest", // Required field
+        email: email || "guest@example.com", // Required field
+        shippingAddress: "{}", // Required field
+        customerEmail: email || "guest@example.com",
+        total: totalAmount,
+        status: "PENDING",
+        stripeSessionId: session.id,
 
-    items: JSON.stringify(
-      items.map((item: any) => ({
-        productId: item.product.id,
-        title: item.product.title,
-        quantity: item.quantity,
-        price: item.product.price,
-      }))
-    ),
-  },
-});
+        items: {
+          create: items.map((item: CartItem) => ({
+            productId: item.product.id,
+            quantity: item.quantity,
+            price: item.product.price,
+          }))
+        },
+      },
+    });
 
     console.log(`✅ Order created: ${order.id} with session: ${session.id}`);
 

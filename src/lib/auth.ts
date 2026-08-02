@@ -1,5 +1,4 @@
 import bcrypt from 'bcryptjs';
-import { Verify } from 'crypto';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
@@ -30,12 +29,8 @@ export async function verifyPassword(
 }
 
 // Generate JWT token 
-export function generateToken(token: string): TokenPayload | null {
-    try{
-        return jwt.verify(token,JWT_SECRET) as TokenPayload;
-    } catch{
-        return null;
-    }
+export function generateToken(payload: TokenPayload): string {
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 }
 
 

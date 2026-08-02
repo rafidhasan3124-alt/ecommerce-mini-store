@@ -11,8 +11,7 @@ interface CheckoutButtonProps {
 }
 
 export default function CheckoutButton({ className = '' }: CheckoutButtonProps) {
-  const router = useRouter();
-  const { items, totalItems, subtotal } = useCartStore();
+  const { items, totalItems } = useCartStore();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCheckout = async () => {

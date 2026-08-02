@@ -14,16 +14,18 @@ export async function GET(request: NextRequest) {
     }
 
     const order = await prisma.order.findFirst({
-    where: {
+      where: {
         stripeSessionId: sessionId,
-    },
+      },
+      include: {
+        items: {
+          include: {
+            product: true
+          }
+        }
+      }
     });
 
-    if (!order) {
-    return null;
-    }
-
-    const items = JSON.parse(order.items);
     if (!order) {
       return NextResponse.json(
         { error: 'Order not found' },

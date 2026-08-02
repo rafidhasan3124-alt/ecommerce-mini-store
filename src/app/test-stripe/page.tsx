@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 
 export default function TestStripePage() {
   const { addItem } = useCartStore();
-  const [loading, setLoading] = useState(false);
+
 
   const addTestItems = () => {
     mockProducts.forEach(product => {
@@ -31,7 +31,7 @@ export default function TestStripePage() {
       </div>
 
       <div className="flex gap-4">
-        <Button onClick={addTestItems} disabled={loading}>
+        <Button onClick={addTestItems}>
           Add Test Products to Cart
         </Button>
         <Button 

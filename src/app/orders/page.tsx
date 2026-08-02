@@ -9,7 +9,7 @@ interface Order {
   total: number;
   status: string;
   createdAt: string;
-  items: any[];
+  items: unknown[];
 }
 
 export default function OrdersPage() {
@@ -51,7 +51,7 @@ export default function OrdersPage() {
       <div className="max-w-6xl mx-auto px-4 py-16 text-center">
         <div className="text-6xl mb-4">📦</div>
         <h1 className="text-3xl font-bold text-gray-900 mb-4">No Orders Yet</h1>
-        <p className="text-gray-600 mb-8">You haven't placed any orders yet.</p>
+        <p className="text-gray-600 mb-8">You haven&apos;t placed any orders yet.</p>
         <Link href="/shop" className="text-blue-600 hover:text-blue-700 font-medium">
           Start Shopping →
         </Link>
