@@ -69,7 +69,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <ShoppingBagIcon className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-gray-900">Nexora</h1>
+            <h1 className="text-lg font-bold text-gray-900">Zyvo</h1>
             <p className="text-xs text-blue-600 font-medium">Admin Panel</p>
           </div>
         </div>

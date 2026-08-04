@@ -11,10 +11,14 @@ interface Product {
   title: string;
   description: string | null;
   price: number;
+  oldPrice?: number | null;
   imageUrl: string | null;
   category: string | null;
   inStock: boolean;
   stockQuantity: number;
+  isHero?: boolean;
+  heroTag?: string | null;
+  heroSubtitle?: string | null;
 }
 
 export default function AdminProducts() {
@@ -26,10 +30,14 @@ export default function AdminProducts() {
     title: '',
     description: '',
     price: '',
+    oldPrice: '',
     imageUrl: '',
     category: '',
     stockQuantity: '0',
     inStock: true,
+    isHero: false,
+    heroTag: '',
+    heroSubtitle: '',
   });
 
   useEffect(() => {
@@ -62,6 +70,7 @@ export default function AdminProducts() {
         body: JSON.stringify({
           ...formData,
           price: Math.round(parseFloat(formData.price) * 100),
+          oldPrice: formData.oldPrice ? Math.round(parseFloat(formData.oldPrice) * 100) : null,
           stockQuantity: parseInt(formData.stockQuantity),
         }),
       });
@@ -74,10 +83,14 @@ export default function AdminProducts() {
           title: '',
           description: '',
           price: '',
+          oldPrice: '',
           imageUrl: '',
           category: '',
           stockQuantity: '0',
           inStock: true,
+          isHero: false,
+          heroTag: '',
+          heroSubtitle: '',
         });
         fetchProducts();
       } else {
@@ -150,10 +163,14 @@ export default function AdminProducts() {
             title: '',
             description: '',
             price: '',
+            oldPrice: '',
             imageUrl: '',
             category: '',
             stockQuantity: '0',
             inStock: true,
+            isHero: false,
+            heroTag: '',
+            heroSubtitle: '',
           });
         }} className="flex items-center gap-2">
           <PlusIcon className="h-4 w-4" />
@@ -163,12 +180,12 @@ export default function AdminProducts() {
 
       {/* Product Form */}
       {showForm && (
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-6 border border-gray-100">
           <h2 className="text-xl font-semibold mb-4">
             {editingProduct ? 'Edit Product' : 'Add New Product'}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Title *
@@ -197,7 +214,7 @@ export default function AdminProducts() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Price (USD) *
+                  Price (BDT) *
                 </label>
                 <input
                   type="number"
@@ -207,7 +224,22 @@ export default function AdminProducts() {
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="19.99"
+                  placeholder="1999"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Old Original Price (BDT)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.oldPrice}
+                  onChange={(e) => setFormData({ ...formData, oldPrice: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="2499 (Optional for discount badge)"
                 />
               </div>
 
@@ -224,19 +256,19 @@ export default function AdminProducts() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Image URL
-              </label>
-              <input
-                type="url"
-                value={formData.imageUrl}
-                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                placeholder="https://example.com/image.jpg"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Image URL
+                </label>
+                <input
+                  type="url"
+                  value={formData.imageUrl}
+                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
             </div>
 
             <div>
@@ -249,6 +281,54 @@ export default function AdminProducts() {
                 rows={3}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
+            </div>
+
+            {/* ─── Hero Banner Settings ─── */}
+            <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="isHero"
+                    checked={formData.isHero}
+                    onChange={(e) => setFormData({ ...formData, isHero: e.target.checked })}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="isHero" className="ml-2 text-sm font-bold text-gray-900 flex items-center gap-1.5 cursor-pointer">
+                    ⭐ Show in Homepage Hero Slider
+                  </label>
+                </div>
+                <span className="text-xs text-blue-600 font-medium">Controls homepage top banner</span>
+              </div>
+
+              {formData.isHero && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-blue-100">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Hero Badge Tag
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.heroTag}
+                      onChange={(e) => setFormData({ ...formData, heroTag: e.target.value })}
+                      className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
+                      placeholder="e.g. LATEST RELEASE, TOP RATED, BEST SELLER"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Hero Subtitle / Tagline
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.heroSubtitle}
+                      onChange={(e) => setFormData({ ...formData, heroSubtitle: e.target.value })}
+                      className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
+                      placeholder="e.g. Titanium. So strong. So light."
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center">
@@ -309,7 +389,19 @@ export default function AdminProducts() {
                           className="w-10 h-10 object-cover rounded mr-3"
                         />
                       )}
-                      <span className="text-sm font-medium">{product.title}</span>
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-medium">{product.title}</span>
+                          {product.isHero && (
+                            <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                              ⭐ Hero
+                            </span>
+                          )}
+                        </div>
+                        {product.heroTag && (
+                          <span className="text-[11px] text-gray-400">Tag: {product.heroTag}</span>
+                        )}
+                      </div>
                     </div>
                   </td>
                   <td className="py-3 px-4 text-sm">{product.category}</td>
@@ -340,13 +432,17 @@ export default function AdminProducts() {
                             title: product.title,
                             description: product.description || '',
                             price: (product.price / 100).toString(),
+                            oldPrice: product.oldPrice ? (product.oldPrice / 100).toString() : '',
                             imageUrl: product.imageUrl || '',
                             category: product.category || '',
                             stockQuantity: product.stockQuantity.toString(),
                             inStock: product.inStock,
+                            isHero: Boolean(product.isHero),
+                            heroTag: product.heroTag || '',
+                            heroSubtitle: product.heroSubtitle || '',
                           });
                         }}
-                        className="text-sm text-blue-600 hover:text-blue-700"
+                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                       >
                         Edit
                       </button>

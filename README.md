@@ -1,6 +1,6 @@
-# Nexora - Premium E-Commerce Platform
+# Zyvo - Premium E-Commerce Platform
 
-Nexora is a fully-featured, modern e-commerce platform built with Next.js, React, Tailwind CSS, and Prisma. It includes a beautiful, fully responsive frontend, user authentication, a shopping cart, a checkout system, and a comprehensive admin panel.
+Zyvo is a fully-featured, modern e-commerce platform built with Next.js, React, Tailwind CSS, and Prisma. It includes a beautiful, fully responsive frontend, user authentication, a shopping cart, a checkout system, and a comprehensive admin panel.
 
 ## Features
 
@@ -46,5 +46,5 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the store.
 
 ## Admin Access
-- The default admin email is `admin@nexora.com`.
+- The default admin email is `admin@zyvo.com`.
 - You can access the admin dashboard at `/admin`.

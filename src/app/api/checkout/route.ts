@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     // This works for ALL products regardless of whether they have a stripePriceId.
     const lineItems = items.map((item: { product: { title: string; price: number; imageUrl?: string | null }; quantity: number }) => ({
       price_data: {
-        currency: 'usd',
+        currency: 'bdt',
         product_data: {
           name: item.product.title,
           ...(item.product.imageUrl ? { images: [item.product.imageUrl] } : {}),
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
         phone: userData?.phone || '',
         shippingAddress: JSON.stringify(userData?.addresses[0] || {}),
         total: totalAmount,
-        currency: 'usd',
+        currency: 'bdt',
         status: 'PENDING',
         stripeSessionId: session.id,
         items: {

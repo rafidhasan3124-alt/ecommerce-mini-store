@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useCartStore } from '@/store/cartStore';
+import { formatPrice } from '@/lib/format';
 import {
   ShoppingCartIcon,
   UserCircleIcon,
@@ -125,7 +126,7 @@ export default function Navbar() {
           
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
-            <span className="text-2xl md:text-3xl font-black text-[#0b1b36] tracking-tight uppercase">NEXORA</span>
+            <span className="text-2xl md:text-3xl font-black text-[#0b1b36] tracking-tight uppercase">ZYVO</span>
           </Link>
 
           {/* Search Section (Desktop) */}
@@ -230,7 +231,7 @@ export default function Navbar() {
               </div>
               <div className="text-left hidden xl:block">
                 <p className="text-[11px] text-gray-500 leading-tight">Cart</p>
-                <p className="text-[13px] font-bold text-gray-900 leading-tight">${subtotal.toFixed(2)}</p>
+                <p className="text-[13px] font-bold text-gray-900 leading-tight">{formatPrice(subtotal)}</p>
               </div>
             </Link>
           </div>

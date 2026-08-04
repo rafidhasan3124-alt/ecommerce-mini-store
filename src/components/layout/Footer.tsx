@@ -17,7 +17,7 @@ export default function Footer() {
           {/* Column 1: Logo & Info */}
           <div className="space-y-4 pr-4">
             <div className="flex items-center gap-1 mb-6">
-              <span className="font-black text-2xl tracking-tight uppercase">NEXORA</span>
+              <span className="font-black text-2xl tracking-tight uppercase">ZYVO</span>
             </div>
             <p className="text-gray-400 text-[13px] leading-relaxed">
               Your one-stop destination for premium electronics. Quality products, best prices, and excellent service.
@@ -76,7 +76,7 @@ export default function Footer() {
               </li>
               <li className="flex gap-3 items-center">
                 <span className="text-blue-500">✉️</span>
-                <span>support@nexora.com</span>
+                <span>support@zyvo.com</span>
               </li>
             </ul>
           </div>
@@ -113,7 +113,7 @@ export default function Footer() {
 
         <div className="pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 relative">
           <p className="text-gray-400 text-[13px]">
-            © {new Date().getFullYear()} Nexora. All rights reserved.
+            © {new Date().getFullYear()} Zyvo. All rights reserved.
           </p>
           <div className="flex gap-2">
             <div className="w-10 h-6 bg-white rounded flex items-center justify-center text-[8px] text-black font-bold">VISA</div>

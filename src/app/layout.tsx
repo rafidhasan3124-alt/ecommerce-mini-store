@@ -14,13 +14,13 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Nexora — Next Generation Shopping',
-    template: '%s | Nexora',
+    default: 'Zyvo — Next Generation Shopping',
+    template: '%s | Zyvo',
   },
   description: 'Discover premium products at unbeatable prices. Electronics, accessories, lifestyle and more — delivered fast.',
-  keywords: ['ecommerce', 'online store', 'shopping', 'nexora'],
+  keywords: ['ecommerce', 'online store', 'shopping', 'zyvo'],
   openGraph: {
-    title: 'Nexora — Next Generation Shopping',
+    title: 'Zyvo — Next Generation Shopping',
     description: 'Discover premium products at unbeatable prices.',
     type: 'website',
   },

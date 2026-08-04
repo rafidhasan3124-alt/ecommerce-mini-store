@@ -106,7 +106,7 @@ export default function RegisterPage() {
             <ShoppingBagIcon style={{ width: '32px', height: '32px', color: 'white' }} />
           </div>
           <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'white', margin: 0 }}>
-            Nexora
+            Zyvo
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.8)', marginTop: '6px', fontSize: '15px' }}>
             Create your free account

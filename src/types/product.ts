@@ -3,10 +3,15 @@ export interface Product {
   title: string;
   description: string | null;
   price: number;
+  oldPrice?: number | null;
   imageUrl: string | null;
   stripePriceId: string;
   category: string | null;
   inStock: boolean;
+  stockQuantity?: number;
+  isHero?: boolean;
+  heroTag?: string | null;
+  heroSubtitle?: string | null;
   createdAt: string;
 }
 

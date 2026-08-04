@@ -14,7 +14,7 @@ import {
 import { formatPrice } from '@/lib/format';
 
 const features1 = [
-  { icon: TruckIcon, title: 'Free Shipping', desc: 'On all orders over $50' },
+  { icon: TruckIcon, title: 'Free Shipping', desc: 'On all orders over ৳500' },
   { icon: ArrowPathIcon, title: '30 Days Returns', desc: 'Hassle free returns' },
   { icon: ShieldCheckIcon, title: 'Secure Payment', desc: '100% secure checkout' },
   { icon: PhoneIcon, title: 'Premium Support', desc: '24/7 live support' },
@@ -42,62 +42,40 @@ const categories = [
   { name: 'More', icon: '⊞' },
 ];
 
-const heroSlides = [
+const defaultHeroSlides = [
   {
+    id: 'default-1',
     title: 'Sony WH-1000XM5',
     subtitle: 'Wireless Noise Cancelling Headphones',
     desc: 'Industry-leading noise cancellation, exceptionally clear calls, and up to 30 hours of battery life.',
     price: 299.00,
     oldPrice: 399.00,
-    save: 100,
     image: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=800&auto=format&fit=crop',
     tag: 'Top Rated',
     bgColor: 'from-zinc-900 to-zinc-800',
   },
   {
+    id: 'default-2',
     title: 'iPhone 15 Pro Max',
     subtitle: 'Titanium. So strong. So light.',
     desc: 'Forged in titanium and featuring the groundbreaking A17 Pro chip, a customizable Action button, and a more versatile Pro camera system.',
     price: 1199.00,
     oldPrice: 1299.00,
-    save: 100,
     image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=800&auto=format&fit=crop',
     tag: 'Latest Release',
     bgColor: 'from-slate-900 to-blue-950',
   },
   {
+    id: 'default-3',
     title: 'MacBook Air M3',
     subtitle: 'Lean. Mean. M3 machine.',
     desc: 'Supercharged by M3, the MacBook Air is up to 60 percent faster than the model with M1. Features a Liquid Retina display and up to 18 hours of battery life.',
     price: 1299.00,
     oldPrice: 1499.00,
-    save: 200,
     image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=800&auto=format&fit=crop',
     tag: 'Best Seller',
     bgColor: 'from-gray-900 to-neutral-800',
   },
-  {
-    title: 'PlayStation 5 Console',
-    subtitle: 'Play Has No Limits',
-    desc: 'Experience lightning-fast loading with an ultra-high speed SSD, deeper immersion with support for haptic feedback, adaptive triggers, and 3D Audio.',
-    price: 499.00,
-    oldPrice: 549.00,
-    save: 50,
-    image: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?q=80&w=800&auto=format&fit=crop',
-    tag: 'Trending',
-    bgColor: 'from-indigo-950 to-blue-900',
-  },
-  {
-    title: 'Apple Watch Ultra 2',
-    subtitle: 'Next-level adventure.',
-    desc: 'The most rugged and capable Apple Watch. Designed for outdoor adventures and supercharged workouts with a lightweight titanium case.',
-    price: 799.00,
-    oldPrice: 899.00,
-    save: 100,
-    image: 'https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?q=80&w=800&auto=format&fit=crop',
-    tag: 'New Arrival',
-    bgColor: 'from-orange-950 to-red-950',
-  }
 ];
 
 export default function Home() {
@@ -146,14 +124,31 @@ export default function Home() {
     fetchProducts();
   }, []);
 
+  // Filter products that admin chose for Hero Slider
+  const heroProductsFromDB = featuredProducts.filter(p => p.isHero);
+
+  const heroSlides = heroProductsFromDB.length > 0
+    ? heroProductsFromDB.map((p, idx) => ({
+        id: p.id,
+        title: p.title,
+        subtitle: p.heroSubtitle || p.category || 'Special Offer',
+        desc: p.description || 'Discover incredible performance and premium quality.',
+        price: p.price / 100,
+        oldPrice: p.oldPrice ? p.oldPrice / 100 : (p.price * 1.2) / 100,
+        image: p.imageUrl || 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=800&auto=format&fit=crop',
+        tag: p.heroTag || 'FEATURED',
+        bgColor: ['from-slate-900 to-blue-950', 'from-zinc-900 to-zinc-800', 'from-indigo-950 to-blue-900', 'from-gray-900 to-neutral-800'][idx % 4],
+      }))
+    : defaultHeroSlides;
+
   // Auto-slide hero section every 5 seconds
   useEffect(() => {
+    if (heroSlides.length <= 1) return;
     const slideInterval = setInterval(() => {
-      setCurrentSlide((prev) => (prev === heroSlides.length - 1 ? 0 : prev + 1));
+      setCurrentSlide((prev) => (prev >= heroSlides.length - 1 ? 0 : prev + 1));
     }, 5000);
     return () => clearInterval(slideInterval);
-  }, []);
-
+  }, [heroSlides.length]);
 
   const trendingProducts = featuredProducts.slice(0, 10);
   const flashSaleProducts = featuredProducts.slice(4, 12); // Give it 8 items to slide through
@@ -169,8 +164,10 @@ export default function Home() {
           <div className="relative w-full h-full bg-gray-900">
             {heroSlides.map((slide, slideIdx) => (
               <div 
-                key={slideIdx} 
-                className={`absolute inset-0 w-full h-full md:transition-opacity md:duration-700 md:ease-in-out flex ${slideIdx === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+                key={slide.id || slideIdx} 
+                className={`absolute inset-0 w-full h-full md:transition-opacity md:duration-700 md:ease-in-out ${
+                  slideIdx === currentSlide ? 'opacity-100 z-10 flex' : 'opacity-0 z-0 pointer-events-none hidden md:flex'
+                }`}
               >
                 {/* Background Gradient */}
                 <div className={`absolute inset-0 bg-gradient-to-r ${slide.bgColor} opacity-95`}></div>
@@ -198,8 +195,8 @@ export default function Home() {
                     </p>
                     
                     <div className="flex items-end gap-2 md:gap-3 mt-2 md:mt-4">
-                      <span className="text-3xl sm:text-4xl md:text-5xl font-bold">${slide.price.toFixed(2)}</span>
-                      <span className="text-base md:text-lg text-gray-400 line-through mb-1 md:mb-1.5">${slide.oldPrice.toFixed(2)}</span>
+                      <span className="text-3xl sm:text-4xl md:text-5xl font-bold">৳{slide.price.toFixed(2)}</span>
+                      <span className="text-base md:text-lg text-gray-400 line-through mb-1 md:mb-1.5">৳{slide.oldPrice.toFixed(2)}</span>
                     </div>
 
                     <Link href="/shop" className="mt-2 md:mt-4 bg-white text-black px-6 md:px-10 py-2.5 md:py-3.5 rounded-full text-sm md:text-base font-bold hover:bg-gray-100 hover:scale-105 transition-all duration-300 flex items-center gap-2 shadow-xl">
@@ -319,7 +316,7 @@ export default function Home() {
             <div className="relative z-10 max-w-[60%]">
               <p className="text-[12px] text-gray-300 mb-1">Up to 40% Off</p>
               <h3 className="text-2xl font-bold leading-tight mb-2">Smart Watch<br/>Series 9</h3>
-              <p className="text-[13px] text-gray-400 mb-4">From $399.00</p>
+              <p className="text-[13px] text-gray-400 mb-4">From ৳399.00</p>
               <Link href="/shop" className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-full text-xs font-bold hover:bg-blue-700 transition w-max">
                 Shop Now <ArrowRightIcon className="w-3 h-3"/>
               </Link>
@@ -345,7 +342,7 @@ export default function Home() {
             <div className="relative z-10 max-w-[60%]">
               <p className="text-[12px] text-blue-600 font-bold mb-1">Best Deals on</p>
               <h3 className="text-[20px] font-bold text-[#0b1b36] leading-tight mb-2">Gaming Accessories</h3>
-              <p className="text-[13px] text-gray-500 mb-4">From $29.00</p>
+              <p className="text-[13px] text-gray-500 mb-4">From ৳29.00</p>
               <Link href="/shop" className="inline-flex items-center gap-2 bg-white text-blue-600 border border-blue-200 px-5 py-2 rounded-full text-xs font-bold hover:border-blue-600 transition w-max">
                 Shop Now <ArrowRightIcon className="w-3 h-3"/>
               </Link>
