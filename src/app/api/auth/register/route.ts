@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, generateToken } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { headers } from "next/headers";
 
 
 export async function POST(request: NextRequest){
@@ -30,9 +31,10 @@ export async function POST(request: NextRequest){
         // Hash password 
         const hashedPassword = await hashPassword(password);
 
-        // Check if this is an admin email 
+        // Check if this is an admin email or the very first user in the database
         const adminEmails = process.env.ADMIN_EMAILS?.split(',') || [];
-        const role = adminEmails.includes(email)? 'ADMIN' :'USER';
+        const isFirstUser = (await prisma.user.count()) === 0;
+        const role = (isFirstUser || adminEmails.includes(email)) ? 'ADMIN' : 'USER';
 
         const user = await prisma.user.create({
             data:{
@@ -51,13 +53,16 @@ export async function POST(request: NextRequest){
             role:user.role
         });
 
-        // Set Cookie 
+        // Set Cookie — mark as Secure whenever the request is over HTTPS (e.g. ngrok)
+        const requestHeaders = await headers();
+        const proto = requestHeaders.get('x-forwarded-proto') || 'http';
+        const isHttps = proto === 'https';
         const cookieStore = await cookies();
-        cookieStore.set('auth_token',token,{
+        cookieStore.set('auth_token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV=== 'production',
-            sameSite: 'lax',
-            maxAge: 60*60*24*7 //7 days
+            secure: isHttps,
+            sameSite: isHttps ? 'none' : 'lax',
+            maxAge: 60 * 60 * 24 * 7, // 7 days
         });
 
         // Return user data (excluding password)

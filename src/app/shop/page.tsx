@@ -1,16 +1,26 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/ui/ProductCard';
 import { Product } from '@/types/product';
 import { mockProducts } from '@/data/products';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
-export default function ShopPage() {
+function ShopContent() {
+  const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('all');
+
+  // Read ?category= and ?q= from URL on mount
+  useEffect(() => {
+    const urlCategory = searchParams.get('category');
+    const urlQuery = searchParams.get('q');
+    if (urlCategory) setCategory(urlCategory.toLowerCase());
+    if (urlQuery) setSearchTerm(urlQuery);
+  }, [searchParams]);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -25,7 +35,6 @@ export default function ShopPage() {
         setLoading(false);
       }
     };
-
     loadProducts();
   }, []);
 
@@ -33,16 +42,16 @@ export default function ShopPage() {
   const filteredProducts = products.filter((product) => {
     const matchesSearch = searchTerm
       ? product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase())
+        (product.description || '').toLowerCase().includes(searchTerm.toLowerCase())
       : true;
     const matchesCategory = category !== 'all'
-      ? product.category.toLowerCase() === category.toLowerCase()
+      ? (product.category || '').toLowerCase() === category.toLowerCase()
       : true;
     return matchesSearch && matchesCategory;
   });
 
   // Get unique categories
-  const categories = ['all', ...new Set(products.map((p) => p.category.toLowerCase()))];
+  const categories = ['all', ...new Set(products.map((p) => (p.category || 'other').toLowerCase()))];
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -63,7 +72,7 @@ export default function ShopPage() {
       </div>
 
       {/* Category Filter */}
-      <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+      <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
         {categories.map((cat) => (
           <button
             key={cat}
@@ -81,10 +90,10 @@ export default function ShopPage() {
 
       {/* Product Grid */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <div key={i} className="animate-pulse">
-              <div className="bg-gray-200 h-64 rounded-xl"></div>
+              <div className="bg-gray-200 h-48 sm:h-64 rounded-xl"></div>
               <div className="mt-4 space-y-3">
                 <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                 <div className="h-4 bg-gray-200 rounded w-1/2"></div>
@@ -106,12 +115,34 @@ export default function ShopPage() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       )}
     </div>
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <div key={i} className="animate-pulse">
+              <div className="bg-gray-200 h-48 sm:h-64 rounded-xl"></div>
+              <div className="mt-4 space-y-3">
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    }>
+      <ShopContent />
+    </Suspense>
   );
 }

@@ -1,47 +1,49 @@
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
 import { getCurrentUser } from "@/lib/auth";
-import { error } from "console";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(){
-    try{
+export async function GET() {
+    try {
         const currentUser = await getCurrentUser();
 
-        if (!currentUser){
+        if (!currentUser) {
             return NextResponse.json(
-                {error: 'Not authenticated'},
-                { status: 401}
+                { error: 'Not authenticated' },
+                { status: 401 }
             );
         }
 
         const user = await prisma.user.findUnique({
-            where:{ id: currentUser.userId},
-            include:{
-                adresses:{
-                    where: { isDefault: true},
+            where: { id: currentUser.userId },
+            include: {
+                addresses: {
+                    where: { isDefault: true },
                     take: 1
                 },
             },
         });
 
-        if (!user){
-            return NextResponse.json(
-                {error:'User not found'},
-                {status: 404}
+        if (!user) {
+            // User was deleted — clear the stale cookie
+            const response = NextResponse.json(
+                { error: 'Not authenticated' },
+                { status: 401 }
             );
+            response.cookies.delete('auth_token');
+            return response;
         }
 
-        const {password, ...userWithoutPassword}= user;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password, ...userWithoutPassword } = user;
 
         return NextResponse.json({
-            user:userWithoutPassword
+            user: userWithoutPassword
         });
-    } catch (error){
-        console.error('Get user error:',error);
+    } catch (error) {
+        console.error('Get user error:', error);
         return NextResponse.json(
-            {error:'Failed to get user'},
-            {status: 500}
+            { error: 'Failed to get user' },
+            { status: 500 }
         );
     }
 }

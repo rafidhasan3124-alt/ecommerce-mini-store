@@ -1,59 +1,63 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import { PassThrough } from "stream";
-import { error } from "console";
 
 export async function GET() {
-    try{
+    try {
         const user = await getCurrentUser();
-        if (!user){
+        if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const addresses = await prisma.address.findMany({
-            where:{ userId: user.userId },
+            where: { userId: user.userId },
             orderBy: { isDefault: 'desc' }
         });
 
         return NextResponse.json({ addresses });
-    }catch (error){
-        console.error('Get addresses error:',error);
+    } catch (error) {
+        console.error('Get addresses error:', error);
         return NextResponse.json(
             { error: 'Failed to fetch addresses' },
-            { status: 500}
+            { status: 500 }
         );
     }
-    
 }
 
-export async function POST(request: NextRequest){
-    try{
+export async function POST(request: NextRequest) {
+    try {
         const user = await getCurrentUser();
-        if (!user){
-            return NextResponse.json({ error: 'Unauthorized' },{ status: 401 });
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const { street, city, state, zipCode, country } = await request.json();
 
-        // Check if this is the first address 
+        if (!street || !city || !state || !zipCode) {
+            return NextResponse.json(
+                { error: 'Street, city, state, and zip code are required' },
+                { status: 400 }
+            );
+        }
+
+        // Check if this is the first address
         const addressCount = await prisma.address.count({
             where: { userId: user.userId }
         });
 
         const address = await prisma.address.create({
-            data:{
+            data: {
                 userId: user.userId,
                 street,
                 city,
                 state,
                 zipCode,
-                country,
-                isDefault: addressCount === 0, //first address is default
+                country: country || 'US',
+                isDefault: addressCount === 0, // first address is default
             },
         });
 
-        return NextResponse.json({address});
+        return NextResponse.json({ address });
     } catch (error) {
         console.error('Create address error:', error);
         return NextResponse.json(

@@ -1,11 +1,11 @@
 export interface Product {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   price: number;
   imageUrl: string | null;
-  stripePriceId: string; 
-  category: string;
+  stripePriceId: string;
+  category: string | null;
   inStock: boolean;
   createdAt: string;
 }

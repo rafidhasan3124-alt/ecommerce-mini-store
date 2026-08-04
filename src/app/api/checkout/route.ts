@@ -1,82 +1,85 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import { error } from "console";
 
-
-export async function POST(request: NextRequest){
-  try{
+export async function POST(request: NextRequest) {
+  try {
     const user = await getCurrentUser();
 
-    if (!user){
+    if (!user) {
       return NextResponse.json(
-        { error: 'Authentication required'},
+        { error: 'Authentication required' },
         { status: 401 }
       );
     }
 
-    const { items, email, userId } = await request.json();
+    const { items } = await request.json();
+    const userId = user.userId;
+    const email = user.email;
 
-    if (!items || items.length === 0){
+    if (!items || items.length === 0) {
       return NextResponse.json(
-        {error: 'Cart is empty'},
-        {status: 400}
+        { error: 'Cart is empty' },
+        { status: 400 }
       );
     }
 
-    // Get user's default address 
+    // Get user's default address
     const userData = await prisma.user.findUnique({
-      where: { id: userId},
-      include:{
-        addresses:{
-          where: {isDefault: true},
-          take:1
+      where: { id: userId },
+      include: {
+        addresses: {
+          where: { isDefault: true },
+          take: 1
         },
       },
     });
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    // Try to get the origin from the request headers first, as it's the most reliable for ngrok and proxies
+    const originUrl = request.headers.get('origin') || request.nextUrl.origin || 'http://localhost:3000';
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || originUrl;
 
-    const lineItems = items.map((item: any) => ({
+    const lineItems = items.map((item: { product: { stripePriceId: string }; quantity: number }) => ({
       price: item.product.stripePriceId,
       quantity: item.quantity
     }));
 
     const totalAmount = items.reduce(
-      (sum: number,item: any) => sum + item.product.price*item.quantity,
+      (sum: number, item: { product: { price: number }; quantity: number }) =>
+        sum + item.product.price * item.quantity,
       0
     );
 
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items:lineItems,
+      line_items: lineItems,
       mode: 'payment',
       success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/checkout/cancel`,
       customer_email: email,
-      metadata:{
+      metadata: {
         userId: userId,
         totalAmount: totalAmount.toString()
       },
-      shipping_address_collection:{
-        allowed_countries:['US',"CA",'GB','DE','FR','AU']
-      } 
+      shipping_address_collection: {
+        allowed_countries: ['US', 'CA', 'GB', 'DE', 'FR', 'AU']
+      }
     });
 
-    // Create order 
+    // Create order
     const order = await prisma.order.create({
-      data:{
+      data: {
         userId: userId,
-        email:email,
+        email: email,
         phone: userData?.phone || '',
-        shippingAddress: JSON.stringify(userData?.adresses[0] || {}),
+        shippingAddress: JSON.stringify(userData?.addresses[0] || {}),
         total: totalAmount,
         currency: 'usd',
         status: 'PENDING',
         stripeSessionId: session.id,
-        items:{
-          create: items.map((item: any) => ({
+        items: {
+          create: items.map((item: { product: { id: string; price: number }; quantity: number }) => ({
             productId: item.product.id,
             quantity: item.quantity,
             price: item.product.price
@@ -85,16 +88,15 @@ export async function POST(request: NextRequest){
       },
     });
 
-
     return NextResponse.json({
       sessionId: session.id,
       sessionUrl: session.url,
       orderId: order.id
     });
-  } catch(error){
+  } catch (error) {
     console.error('Checkout error:', error);
     return NextResponse.json(
-      { error: 'Failed to create checkout'},
+      { error: 'Failed to create checkout' },
       { status: 500 }
     );
   }

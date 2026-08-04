@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword, generateToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import { headers } from 'next/headers';
 
 export async function POST(request: NextRequest){
     try{
@@ -45,13 +46,15 @@ export async function POST(request: NextRequest){
             role: user.role
         });
 
-        // Set cookie 
-        (await cookies()).set('auth_token',token,{
+        // Set cookie — mark as Secure whenever the request is over HTTPS (e.g. ngrok)
+        const requestHeaders = await headers();
+        const proto = requestHeaders.get('x-forwarded-proto') || 'http';
+        const isHttps = proto === 'https';
+        (await cookies()).set('auth_token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 60*60*24*7 //7days
-
+            secure: isHttps,
+            sameSite: isHttps ? 'none' : 'lax',
+            maxAge: 60 * 60 * 24 * 7, // 7 days
         });
 
         // Return user data (excluding password )

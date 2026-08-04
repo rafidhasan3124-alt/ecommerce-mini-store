@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/types/product';
-import { formatPrice } from '@/lib/stripe';
+import { formatPrice } from '@/lib/format';
 import { useCartStore } from '@/store/cartStore';
 import { mockProducts } from '@/data/products';
 import Button from '@/components/ui/Button';
@@ -92,14 +92,20 @@ export default function ProductDetailPage() {
         {/* Image */}
         <div className="lg:w-1/2 relative">
           <div className="relative h-96 lg:h-[500px] bg-gray-100 rounded-xl overflow-hidden">
-            <Image
-              src={product.imageUrl ?? "/placeholder.png"}
-              alt={product.title}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              priority
-            />
+            {product.imageUrl ? (
+              <Image
+                src={product.imageUrl}
+                alt={product.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                priority
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <ShoppingBagIcon className="h-24 w-24 text-gray-200" />
+              </div>
+            )}
             {!product.inStock && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                 <span className="bg-red-500 text-white px-6 py-3 rounded-lg text-xl font-bold">

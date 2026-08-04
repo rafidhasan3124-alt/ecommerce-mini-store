@@ -1,7 +1,7 @@
 'use client';
 
 import { useCartStore } from '@/store/cartStore';
-import { formatPrice } from '@/lib/stripe';
+import { formatPrice } from '@/lib/format';
 import Link from 'next/link';
 import Image from 'next/image';
 import Button from '@/components/ui/Button';
@@ -43,22 +43,27 @@ export default function CartPage() {
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
             <div className="divide-y divide-gray-200">
               {items.map((item) => {
-                const imageUrl = item.product.imageUrl || '/placeholder-image.jpg';
+                const imageUrl = item.product.imageUrl || null;
+                const placeholderSrc = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' fill='%23e5e7eb'%3E%3Crect width='80' height='80'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-size='11'%3ENo Image%3C/text%3E%3C/svg%3E";
                 
                 return (
                   <div key={item.productId} className="p-4 flex items-center gap-4">
-                    <div className="relative w-20 h-20 flex-shrink-0">
-                      <Image
-                        src={imageUrl}
-                        alt={item.product.title}
-                        fill
-                        className="object-cover rounded-lg"
-                        sizes="80px"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = '/placeholder-image.jpg';
-                        }}
-                      />
+                    <div className="relative w-20 h-20 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
+                      {imageUrl ? (
+                        <Image
+                          src={imageUrl}
+                          alt={item.product.title}
+                          fill
+                          className="object-cover"
+                          sizes="80px"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = placeholderSrc;
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">No Image</div>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <Link href={`/product/${item.product.id}`}>
