@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Button from "@/components/ui/Button";
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { EyeIcon, EyeSlashIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -17,27 +16,23 @@ export default function RegisterPage() {
     email: '',
     phone: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
 
   const update = (field: string, value: string) =>
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (formData.password.length < 6) {
       toast.error('Password must be at least 6 characters');
       return;
     }
-
     if (formData.password !== formData.confirmPassword) {
       toast.error('Passwords do not match');
       return;
     }
-
     setLoading(true);
-
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
@@ -46,27 +41,14 @@ export default function RegisterPage() {
           name: formData.name,
           email: formData.email,
           phone: formData.phone || undefined,
-          password: formData.password
-        })
+          password: formData.password,
+        }),
       });
-
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Registration failed');
-      }
-
-      toast.success('Account created successfully! Welcome aboard 🎉');
-
-      // Refresh so server components (Navbar) pick up the new auth cookie
+      if (!response.ok) throw new Error(data.error || 'Registration failed');
+      toast.success('Account created! Welcome aboard 🎉');
       router.refresh();
-
-      // Redirect based on role — admins go to /admin, users go to homepage
-      if (data.user?.role === 'ADMIN') {
-        router.push('/admin');
-      } else {
-        router.push('/');
-      }
+      router.push(data.user?.role === 'ADMIN' ? '/admin' : '/');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Registration failed');
     } finally {
@@ -74,133 +56,260 @@ export default function RegisterPage() {
     }
   };
 
-  return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-gray-50">
-      <div className="max-w-md w-full">
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-blue-100 rounded-2xl mb-4">
-              <span className="text-2xl">🛍️</span>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
-            <p className="text-gray-500 mt-1 text-sm">Join ShopStore and start shopping today</p>
-          </div>
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '12px 16px',
+    border: '2px solid #e5e7eb',
+    borderRadius: '12px',
+    fontSize: '15px',
+    outline: 'none',
+    boxSizing: 'border-box',
+    transition: 'border-color 0.2s',
+    fontFamily: 'inherit',
+  };
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Full Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Full Name <span className="text-red-500">*</span>
+  const labelStyle: React.CSSProperties = {
+    display: 'block',
+    fontSize: '14px',
+    fontWeight: 600,
+    color: '#374151',
+    marginBottom: '8px',
+  };
+
+  return (
+    <div
+      style={{
+        minHeight: '100dvh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px 16px 80px',
+      }}
+    >
+      <div style={{ width: '100%', maxWidth: '440px' }}>
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '64px',
+              height: '64px',
+              background: 'rgba(255,255,255,0.2)',
+              borderRadius: '20px',
+              backdropFilter: 'blur(10px)',
+              marginBottom: '16px',
+            }}
+          >
+            <ShoppingBagIcon style={{ width: '32px', height: '32px', color: 'white' }} />
+          </div>
+          <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'white', margin: 0 }}>
+            Nexora
+          </h1>
+          <p style={{ color: 'rgba(255,255,255,0.8)', marginTop: '6px', fontSize: '15px' }}>
+            Create your free account
+          </p>
+        </div>
+
+        {/* Card */}
+        <div
+          style={{
+            background: 'rgba(255,255,255,0.97)',
+            borderRadius: '24px',
+            padding: '36px 32px',
+            boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
+          }}
+        >
+          <form onSubmit={handleSubmit}>
+            {/* Name */}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={labelStyle}>
+                Full Name <span style={{ color: '#ef4444' }}>*</span>
               </label>
               <input
+                id="register-name"
                 type="text"
                 required
                 autoComplete="name"
                 value={formData.name}
                 onChange={(e) => update('name', e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-sm"
                 placeholder="John Doe"
+                style={inputStyle}
+                onFocus={(e) => (e.target.style.borderColor = '#6366f1')}
+                onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
               />
             </div>
 
             {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Email Address <span className="text-red-500">*</span>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={labelStyle}>
+                Email Address <span style={{ color: '#ef4444' }}>*</span>
               </label>
               <input
+                id="register-email"
                 type="email"
                 required
                 autoComplete="email"
                 value={formData.email}
                 onChange={(e) => update('email', e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-sm"
                 placeholder="you@example.com"
+                style={inputStyle}
+                onFocus={(e) => (e.target.style.borderColor = '#6366f1')}
+                onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
               />
             </div>
 
             {/* Phone */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Phone Number <span className="text-gray-400 font-normal">(optional)</span>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={labelStyle}>
+                Phone{' '}
+                <span style={{ color: '#9ca3af', fontWeight: 400 }}>(optional)</span>
               </label>
               <input
+                id="register-phone"
                 type="tel"
                 autoComplete="tel"
                 value={formData.phone}
                 onChange={(e) => update('phone', e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-sm"
                 placeholder="+1 234 567 890"
+                style={inputStyle}
+                onFocus={(e) => (e.target.style.borderColor = '#6366f1')}
+                onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
               />
             </div>
 
             {/* Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Password <span className="text-red-500">*</span>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={labelStyle}>
+                Password <span style={{ color: '#ef4444' }}>*</span>
               </label>
-              <div className="relative">
+              <div style={{ position: 'relative' }}>
                 <input
+                  id="register-password"
                   type={showPassword ? 'text' : 'password'}
                   required
                   autoComplete="new-password"
                   value={formData.password}
                   onChange={(e) => update('password', e.target.value)}
-                  className="w-full px-4 py-2.5 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-sm"
                   placeholder="Min. 6 characters"
+                  style={{ ...inputStyle, paddingRight: '44px' }}
+                  onFocus={(e) => (e.target.style.borderColor = '#6366f1')}
+                  onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+                  style={{
+                    position: 'absolute',
+                    right: '14px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#9ca3af',
+                    padding: '4px',
+                  }}
                 >
-                  {showPassword ? <EyeSlashIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                  {showPassword ? (
+                    <EyeSlashIcon style={{ width: '20px', height: '20px' }} />
+                  ) : (
+                    <EyeIcon style={{ width: '20px', height: '20px' }} />
+                  )}
                 </button>
               </div>
             </div>
 
             {/* Confirm Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Confirm Password <span className="text-red-500">*</span>
+            <div style={{ marginBottom: '28px' }}>
+              <label style={labelStyle}>
+                Confirm Password <span style={{ color: '#ef4444' }}>*</span>
               </label>
-              <div className="relative">
+              <div style={{ position: 'relative' }}>
                 <input
+                  id="register-confirm-password"
                   type={showConfirm ? 'text' : 'password'}
                   required
                   autoComplete="new-password"
                   value={formData.confirmPassword}
                   onChange={(e) => update('confirmPassword', e.target.value)}
-                  className="w-full px-4 py-2.5 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-sm"
                   placeholder="Repeat your password"
+                  style={{ ...inputStyle, paddingRight: '44px' }}
+                  onFocus={(e) => (e.target.style.borderColor = '#6366f1')}
+                  onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirm(!showConfirm)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+                  style={{
+                    position: 'absolute',
+                    right: '14px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#9ca3af',
+                    padding: '4px',
+                  }}
                 >
-                  {showConfirm ? <EyeSlashIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                  {showConfirm ? (
+                    <EyeSlashIcon style={{ width: '20px', height: '20px' }} />
+                  ) : (
+                    <EyeIcon style={{ width: '20px', height: '20px' }} />
+                  )}
                 </button>
               </div>
             </div>
 
-            <Button type="submit" size="lg" className="w-full !mt-6" isLoading={loading}>
-              Create Account
-            </Button>
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: '14px',
+                background: loading
+                  ? '#a5b4fc'
+                  : 'linear-gradient(135deg, #667eea, #764ba2)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: 700,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
+                fontFamily: 'inherit',
+                letterSpacing: '0.3px',
+              }}
+            >
+              {loading ? 'Creating account...' : 'Create Account'}
+            </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-500">
-            Already have an account?{' '}
-            <Link href="/login" className="text-blue-600 hover:text-blue-700 font-semibold">
-              Sign In
-            </Link>
-          </p>
-        </div>
+          <div style={{ textAlign: 'center', marginTop: '24px' }}>
+            <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>
+              Already have an account?{' '}
+              <Link
+                href="/login"
+                style={{ color: '#6366f1', fontWeight: 700, textDecoration: 'none' }}
+              >
+                Sign In →
+              </Link>
+            </p>
+          </div>
 
-        <p className="mt-4 text-center text-xs text-gray-400">
-          By creating an account, you agree to our Terms of Service and Privacy Policy.
-        </p>
+          <div style={{ textAlign: 'center', marginTop: '16px' }}>
+            <Link
+              href="/"
+              style={{ color: '#9ca3af', fontSize: '13px', textDecoration: 'none' }}
+            >
+              ← Back to Shop
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

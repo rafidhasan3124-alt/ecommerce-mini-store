@@ -36,13 +36,23 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Try to get the origin from the request headers first, as it's the most reliable for ngrok and proxies
+    // Try to get the origin from the request headers first, as it's the most reliable for proxies
     const originUrl = request.headers.get('origin') || request.nextUrl.origin || 'http://localhost:3000';
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || originUrl;
 
-    const lineItems = items.map((item: { product: { stripePriceId: string }; quantity: number }) => ({
-      price: item.product.stripePriceId,
-      quantity: item.quantity
+    // Use price_data (inline pricing) instead of pre-created Stripe Price IDs.
+    // This works for ALL products regardless of whether they have a stripePriceId.
+    const lineItems = items.map((item: { product: { title: string; price: number; imageUrl?: string | null }; quantity: number }) => ({
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: item.product.title,
+          ...(item.product.imageUrl ? { images: [item.product.imageUrl] } : {}),
+        },
+        // Stripe prices are in cents; our DB stores in cents already
+        unit_amount: item.product.price,
+      },
+      quantity: item.quantity,
     }));
 
     const totalAmount = items.reduce(
@@ -63,11 +73,11 @@ export async function POST(request: NextRequest) {
         totalAmount: totalAmount.toString()
       },
       shipping_address_collection: {
-        allowed_countries: ['US', 'CA', 'GB', 'DE', 'FR', 'AU']
+        allowed_countries: ['US', 'CA', 'GB', 'DE', 'FR', 'AU', 'BD', 'IN', 'PK', 'SG', 'AE']
       }
     });
 
-    // Create order
+    // Create order record in database
     const order = await prisma.order.create({
       data: {
         userId: userId,
@@ -101,3 +111,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

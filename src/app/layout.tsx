@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import BottomNav from '@/components/layout/BottomNav';
 import { Toaster } from 'react-hot-toast';
 
@@ -13,13 +14,13 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'ShopStore — Premium E-Commerce',
-    template: '%s | ShopStore',
+    default: 'Nexora — Next Generation Shopping',
+    template: '%s | Nexora',
   },
   description: 'Discover premium products at unbeatable prices. Electronics, accessories, lifestyle and more — delivered fast.',
-  keywords: ['ecommerce', 'online store', 'shopping', 'shopstore'],
+  keywords: ['ecommerce', 'online store', 'shopping', 'nexora'],
   openGraph: {
-    title: 'ShopStore — Premium E-Commerce',
+    title: 'Nexora — Next Generation Shopping',
     description: 'Discover premium products at unbeatable prices.',
     type: 'website',
   },
@@ -27,70 +28,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={inter.variable} data-scroll-behavior="smooth">
       <body className="font-sans antialiased pb-16 md:pb-0">
         <Navbar />
 
-        <main className="min-h-screen bg-gray-50">
+        <main className="min-h-screen bg-[#f0f2f5]">
           {children}
         </main>
 
-        <footer className="bg-white border-t border-gray-200 pt-16 pb-8 mt-auto hidden md:block">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-              <div className="space-y-4">
-                <div className="flex items-center gap-1">
-                  <span className="font-bold text-2xl text-blue-600">Shop</span>
-                  <span className="font-light text-2xl text-gray-600">Store</span>
-                </div>
-                <p className="text-gray-500 text-sm leading-relaxed">
-                  Discover premium products at unbeatable prices. Electronics, accessories, lifestyle and more — delivered fast.
-                </p>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-4">Shop</h3>
-                <ul className="space-y-3 text-sm text-gray-500">
-                  <li><a href="#" className="hover:text-blue-600 transition-colors">New Arrivals</a></li>
-                  <li><a href="#" className="hover:text-blue-600 transition-colors">Best Sellers</a></li>
-                  <li><a href="#" className="hover:text-blue-600 transition-colors">Electronics</a></li>
-                  <li><a href="#" className="hover:text-blue-600 transition-colors">Accessories</a></li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-4">Support</h3>
-                <ul className="space-y-3 text-sm text-gray-500">
-                  <li><a href="#" className="hover:text-blue-600 transition-colors">Help Center</a></li>
-                  <li><a href="#" className="hover:text-blue-600 transition-colors">Track Order</a></li>
-                  <li><a href="#" className="hover:text-blue-600 transition-colors">Returns & Refunds</a></li>
-                  <li><a href="#" className="hover:text-blue-600 transition-colors">Contact Us</a></li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-4">Company</h3>
-                <ul className="space-y-3 text-sm text-gray-500">
-                  <li><a href="#" className="hover:text-blue-600 transition-colors">About Us</a></li>
-                  <li><a href="#" className="hover:text-blue-600 transition-colors">Careers</a></li>
-                  <li><a href="#" className="hover:text-blue-600 transition-colors">Privacy Policy</a></li>
-                  <li><a href="#" className="hover:text-blue-600 transition-colors">Terms of Service</a></li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-gray-400 text-sm">
-                © {new Date().getFullYear()} ShopStore. All rights reserved.
-              </p>
-              <div className="flex gap-6 text-sm text-gray-400">
-                <a href="#" className="hover:text-gray-600 transition-colors">Privacy</a>
-                <a href="#" className="hover:text-gray-600 transition-colors">Terms</a>
-                <a href="#" className="hover:text-gray-600 transition-colors">Sitemap</a>
-              </div>
-            </div>
-          </div>
-        </footer>
+        <Footer />
 
         <BottomNav />
         <Toaster

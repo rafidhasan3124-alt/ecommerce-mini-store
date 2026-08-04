@@ -4,7 +4,6 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/ui/ProductCard';
 import { Product } from '@/types/product';
-import { mockProducts } from '@/data/products';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 function ShopContent() {
@@ -26,11 +25,12 @@ function ShopContent() {
     const loadProducts = async () => {
       try {
         const response = await fetch('/api/products');
+        if (!response.ok) throw new Error('Failed to load products');
         const data = await response.json();
-        setProducts(data.products || mockProducts);
+        setProducts(data.products || []);
       } catch (error) {
         console.error('Error loading products:', error);
-        setProducts(mockProducts);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -90,7 +90,7 @@ function ShopContent() {
 
       {/* Product Grid */}
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <div key={i} className="animate-pulse">
               <div className="bg-gray-200 h-48 sm:h-64 rounded-xl"></div>
@@ -115,7 +115,7 @@ function ShopContent() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
@@ -129,7 +129,7 @@ export default function ShopPage() {
   return (
     <Suspense fallback={
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <div key={i} className="animate-pulse">
               <div className="bg-gray-200 h-48 sm:h-64 rounded-xl"></div>

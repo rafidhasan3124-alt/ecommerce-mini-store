@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useCartStore } from '@/store/cartStore';
 import {
   ShoppingCartIcon,
@@ -13,6 +13,12 @@ import {
   ChevronDownIcon,
   ShieldCheckIcon,
   MagnifyingGlassIcon,
+  HeartIcon,
+  MapPinIcon,
+  QuestionMarkCircleIcon,
+  GlobeAltIcon,
+  Bars3Icon,
+  GiftIcon
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
@@ -24,8 +30,9 @@ interface NavUser {
 }
 
 export default function Navbar() {
-  const { totalItems } = useCartStore();
+  const { totalItems, subtotal } = useCartStore();
   const router = useRouter();
+  const pathname = usePathname();
   const [user, setUser] = useState<NavUser | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,6 +55,13 @@ export default function Navbar() {
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
+      router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+    }
+  };
+
+  const executeSearch = () => {
+    if (searchQuery.trim()) {
       router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
     }
@@ -76,187 +90,190 @@ export default function Navbar() {
       toast.error('Failed to sign out');
     }
   };
+  // If we are on an admin route, do not render the storefront navbar
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   return (
-    <>
-      {/* 🚀 Top Announcement Marquee Bar */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 text-white overflow-hidden animate-gradient-x">
-        <div className="flex whitespace-nowrap py-1.5 text-xs font-semibold tracking-wide">
-          <div className="animate-marquee flex gap-12 pl-12">
-            <span>🔥 FLASH SALE: Use code <span className="text-yellow-300">SUMMER20</span> for 20% off all Electronics!</span>
-            <span>✨ FREE SHIPPING on all orders over $50</span>
-            <span>⭐ Premium Quality Products Guaranteed</span>
-            <span>🔥 FLASH SALE: Use code <span className="text-yellow-300">SUMMER20</span> for 20% off all Electronics!</span>
-            <span>✨ FREE SHIPPING on all orders over $50</span>
-            <span>⭐ Premium Quality Products Guaranteed</span>
+    <header className="w-full flex flex-col z-50 relative">
+      {/* 1. Top Bar */}
+      <div className="bg-[#0b1b36] text-white py-2 text-xs hidden sm:block">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <span className="text-yellow-400 text-sm">⚡</span>
+            <span className="font-bold text-[13px]">Summer Sale is Live!</span>
+            <span className="text-gray-300 ml-2 text-[13px]">Up to 40% OFF on selected products.</span>
+          </div>
+          <div className="flex items-center gap-6 text-gray-300 font-medium">
+            <a href="#" className="flex items-center gap-1.5 hover:text-white transition">
+              <MapPinIcon className="h-3.5 w-3.5" /> Track Order
+            </a>
+            <a href="#" className="flex items-center gap-1.5 hover:text-white transition">
+              <QuestionMarkCircleIcon className="h-3.5 w-3.5" /> Help Center
+            </a>
+            <a href="#" className="flex items-center gap-1.5 hover:text-white transition">
+              <GlobeAltIcon className="h-3.5 w-3.5" /> English <ChevronDownIcon className="h-3 w-3" />
+            </a>
           </div>
         </div>
       </div>
 
-      {/* Main Navbar */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14 md:h-16">
+      {/* 2. Main Header */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4 lg:gap-8">
+          
+          {/* Logo */}
+          <Link href="/" className="flex-shrink-0">
+            <span className="text-2xl md:text-3xl font-black text-[#0b1b36] tracking-tight uppercase">NEXORA</span>
+          </Link>
 
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-1 flex-shrink-0 group">
-              <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 group-hover:from-purple-600 group-hover:to-blue-600 transition-all duration-500">Shop</span>
-              <span className="text-xl md:text-2xl font-light text-gray-700">Store</span>
+          {/* Search Section (Desktop) */}
+          <div className="hidden lg:flex flex-1 items-center max-w-3xl">
+            <button className="flex items-center gap-2 bg-[#0b1b36] text-white px-4 py-2.5 rounded-l text-sm font-semibold whitespace-nowrap hover:bg-[#1a2f52] transition">
+              <Bars3Icon className="h-5 w-5" /> All Categories <ChevronDownIcon className="h-4 w-4 ml-1" />
+            </button>
+            <div className="relative flex-1 flex">
+              <input
+                type="text"
+                placeholder="Search for products, brands and more..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
+                className="w-full px-4 py-2.5 border-y border-gray-200 text-sm focus:outline-none"
+              />
+              <button 
+                onClick={executeSearch}
+                className="bg-blue-600 text-white px-5 rounded-r hover:bg-blue-700 transition flex items-center justify-center border-y border-r border-blue-600"
+              >
+                <MagnifyingGlassIcon className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Right Action Icons */}
+          <div className="flex items-center gap-5 sm:gap-8">
+            {/* Login / Register */}
+            {user ? (
+              <div className="relative hidden sm:block" ref={dropdownRef}>
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-2 group"
+                >
+                  <UserCircleIcon className="h-7 w-7 text-gray-700 group-hover:text-blue-600 transition" />
+                  <div className="text-left hidden xl:block">
+                    <p className="text-[11px] text-gray-500 leading-tight">Hello, {user.name.split(' ')[0]}</p>
+                    <p className="text-[13px] font-bold text-gray-900 leading-tight flex items-center gap-1">My Account <ChevronDownIcon className="h-3 w-3"/></p>
+                  </div>
+                </button>
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-sm font-bold text-gray-900 truncate">{user.name}</p>
+                      <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                      {user.role === 'ADMIN' && (
+                        <span className="inline-flex items-center gap-1 mt-2 text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded uppercase tracking-wider">
+                          <ShieldCheckIcon className="h-3 w-3" /> ADMIN
+                        </span>
+                      )}
+                    </div>
+                    <div className="py-2 px-2">
+                      {user.role === 'ADMIN' && (
+                        <Link href="/admin" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+                          <ShieldCheckIcon className="h-4 w-4" /> Admin Dashboard
+                        </Link>
+                      )}
+                      <Link href="/profile" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+                        <UserCircleIcon className="h-4 w-4" /> My Profile
+                      </Link>
+                      <Link href="/orders" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+                        <ClipboardDocumentListIcon className="h-4 w-4" /> Order History
+                      </Link>
+                    </div>
+                    <div className="border-t border-gray-100 py-2 px-2">
+                      <button onClick={handleLogout} className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg">
+                        <ArrowRightOnRectangleIcon className="h-4 w-4" /> Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link href="/login" className="flex items-center gap-2 group hidden sm:flex">
+                <UserCircleIcon className="h-7 w-7 text-gray-700 group-hover:text-blue-600 transition" />
+                <div className="text-left hidden xl:block">
+                  <p className="text-[11px] text-gray-500 leading-tight">Welcome</p>
+                  <p className="text-[13px] font-bold text-gray-900 leading-tight">Login / Register</p>
+                </div>
+              </Link>
+            )}
+
+            {/* Wishlist */}
+            <Link href="/profile" className="flex items-center gap-2 group hidden sm:flex">
+              <div className="relative">
+                <HeartIcon className="h-7 w-7 text-gray-700 group-hover:text-blue-600 transition" />
+                <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[9px] font-bold rounded-full w-[15px] h-[15px] flex items-center justify-center">0</span>
+              </div>
+              <div className="text-left hidden xl:block">
+                <p className="text-[11px] text-transparent leading-tight select-none">.</p>
+                <p className="text-[13px] font-bold text-gray-900 leading-tight">Wishlist</p>
+              </div>
             </Link>
 
-            {/* Center Nav Links & Search (Desktop) */}
-            <div className="hidden lg:flex flex-1 items-center justify-center gap-8 px-8">
-              <div className="flex items-center gap-6">
-                <Link href="/" className="text-sm text-gray-600 hover:text-blue-600 font-medium transition">Home</Link>
-                <Link href="/shop" className="text-sm text-gray-600 hover:text-blue-600 font-medium transition">Shop All</Link>
-                <Link href="/shop" className="text-sm text-gray-600 hover:text-blue-600 font-medium transition">Deals <span className="ml-1 inline-flex items-center rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700 animate-pulse">HOT</span></Link>
-                <Link href="/shop" className="text-sm text-gray-600 hover:text-blue-600 font-medium transition">Categories</Link>
+            {/* Cart */}
+            <Link href="/cart" className="flex items-center gap-2 group">
+              <div className="relative">
+                <ShoppingCartIcon className="h-7 w-7 text-gray-700 group-hover:text-blue-600 transition" />
+                <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[9px] font-bold rounded-full w-[15px] h-[15px] flex items-center justify-center">
+                  {totalItems}
+                </span>
               </div>
-
-              {/* Desktop Search Bar */}
-              <div className="relative w-full max-w-sm group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <MagnifyingGlassIcon className="h-4 w-4 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={handleSearch}
-                  className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50/50 focus:bg-white"
-                />
+              <div className="text-left hidden xl:block">
+                <p className="text-[11px] text-gray-500 leading-tight">Cart</p>
+                <p className="text-[13px] font-bold text-gray-900 leading-tight">${subtotal.toFixed(2)}</p>
               </div>
-            </div>
-
-            {/* Right Side (Desktop only, mobile handled by BottomNav) */}
-            <div className="hidden md:flex items-center gap-3">
-              {/* Cart */}
-              <Link href="/cart" className="relative p-2 rounded-full hover:bg-blue-50 transition group">
-                <ShoppingCartIcon className="h-6 w-6 text-gray-700 group-hover:text-blue-600 transition animate-float" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 border-2 border-white animate-pulse-glow">
-                    {totalItems > 99 ? '99+' : totalItems}
-                  </span>
-                )}
-              </Link>
-
-              {/* Auth */}
-              {user ? (
-                <div className="relative" ref={dropdownRef}>
-                  <button
-                    onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full hover:bg-gray-100 transition border border-transparent hover:border-gray-200"
-                  >
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-sm">
-                      {user.name.charAt(0).toUpperCase()}
-                    </div>
-                    <span className="hidden sm:block max-w-[120px] truncate text-sm font-medium text-gray-700">{user.name}</span>
-                    <ChevronDownIcon className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  {/* Dropdown Menu */}
-                  {dropdownOpen && (
-                    <div className="absolute right-0 mt-3 w-56 bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-100 py-2 z-50 transform opacity-100 scale-100 transition-all duration-200 origin-top-right">
-                      {/* User Info */}
-                      <div className="px-4 py-3 border-b border-gray-100/50">
-                        <p className="text-sm font-bold text-gray-900 truncate">{user.name}</p>
-                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                        {user.role === 'ADMIN' && (
-                          <span className="inline-flex items-center gap-1 mt-2 text-[10px] font-bold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                            <ShieldCheckIcon className="h-3 w-3" /> ADMIN
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Links */}
-                      <div className="py-2 px-2">
-                        {user.role === 'ADMIN' && (
-                          <Link
-                            href="/admin"
-                            onClick={() => setDropdownOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 hover:text-amber-700 hover:bg-amber-50 rounded-xl transition"
-                          >
-                            <ShieldCheckIcon className="h-5 w-5 text-amber-500" />
-                            Admin Dashboard
-                          </Link>
-                        )}
-                        <Link
-                          href="/profile"
-                          onClick={() => setDropdownOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition"
-                        >
-                          <UserCircleIcon className="h-5 w-5 text-blue-500" />
-                          My Profile
-                        </Link>
-                        <Link
-                          href="/orders"
-                          onClick={() => setDropdownOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition"
-                        >
-                          <ClipboardDocumentListIcon className="h-5 w-5 text-blue-500" />
-                          Order History
-                        </Link>
-                        <Link
-                          href="/profile/addresses"
-                          onClick={() => setDropdownOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition"
-                        >
-                          <Cog6ToothIcon className="h-5 w-5 text-blue-500" />
-                          Saved Addresses
-                        </Link>
-                      </div>
-
-                      {/* Logout */}
-                      <div className="border-t border-gray-100/50 py-2 px-2">
-                        <button
-                          onClick={handleLogout}
-                          className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition"
-                        >
-                          <ArrowRightOnRectangleIcon className="h-5 w-5" />
-                          Sign Out
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <Link
-                    href="/login"
-                    className="hidden sm:block text-sm text-gray-600 hover:text-blue-600 font-medium transition px-3 py-2 rounded-xl hover:bg-gray-100"
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="text-sm bg-blue-600 text-white font-semibold px-5 py-2.5 rounded-full hover:bg-blue-700 transition shadow-md shadow-blue-200 hover:shadow-lg hover:-translate-y-0.5"
-                  >
-                    Sign Up
-                  </Link>
-                </div>
-              )}
-            </div>
+            </Link>
           </div>
         </div>
 
         {/* Mobile Search Bar */}
-        <div className="md:hidden px-4 pb-3">
-          <div className="relative w-full group">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MagnifyingGlassIcon className="h-4 w-4 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
-            </div>
+        <div className="lg:hidden px-4 pb-4">
+          <div className="relative flex">
             <input
               type="text"
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleSearch}
-              className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+              className="w-full px-4 py-2 border border-gray-200 rounded-l text-sm focus:outline-none"
             />
+            <button 
+              onClick={executeSearch}
+              className="bg-blue-600 text-white px-4 rounded-r hover:bg-blue-700 flex items-center justify-center"
+            >
+              <MagnifyingGlassIcon className="h-5 w-5" />
+            </button>
           </div>
         </div>
-      </nav>
-    </>
+      </div>
+
+      {/* 3. Navigation Links Row */}
+      <div className="bg-white border-b border-gray-200 hidden lg:block sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
+          <div className="flex items-center gap-8 h-full">
+            <Link href="/" className="text-[14px] font-bold text-blue-600 h-full flex items-center border-b-[3px] border-blue-600">Home</Link>
+            <Link href="/shop?category=Electronics" className="text-[14px] font-medium text-gray-700 hover:text-blue-600 h-full flex items-center gap-1 transition">Electronics <ChevronDownIcon className="h-3.5 w-3.5 text-gray-400" /></Link>
+            <Link href="/shop" className="text-[14px] font-medium text-gray-700 hover:text-blue-600 h-full flex items-center transition">New Arrivals</Link>
+            <Link href="/shop" className="text-[14px] font-medium text-gray-700 hover:text-blue-600 h-full flex items-center transition">Today's Deal</Link>
+            <Link href="/shop" className="text-[14px] font-medium text-gray-700 hover:text-blue-600 h-full flex items-center transition">Best Sellers</Link>
+            <Link href="/shop" className="text-[14px] font-medium text-gray-700 hover:text-blue-600 h-full flex items-center transition">Brands</Link>
+            <Link href="#" className="text-[14px] font-medium text-gray-700 hover:text-blue-600 h-full flex items-center transition">Blog</Link>
+          </div>
+          <Link href="/shop" className="flex items-center gap-2 text-blue-600 bg-blue-50 px-4 py-2 rounded text-[13px] font-bold hover:bg-blue-100 transition border border-blue-100">
+            <GiftIcon className="h-4 w-4" /> Special Offers
+          </Link>
+        </div>
+      </div>
+    </header>
   );
 }

@@ -7,10 +7,12 @@ export async function GET() {
         const currentUser = await getCurrentUser();
 
         if (!currentUser) {
-            return NextResponse.json(
+            const response = NextResponse.json(
                 { error: 'Not authenticated' },
                 { status: 401 }
             );
+            response.cookies.delete('auth_token');
+            return response;
         }
 
         const user = await prisma.user.findUnique({

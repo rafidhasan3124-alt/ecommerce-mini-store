@@ -39,9 +39,9 @@ export default function CheckoutButton({ className = '' }: CheckoutButtonProps) 
         items: items.map((item) => ({
           product: {
             id: item.product.id,
-            stripePriceId: item.product.stripePriceId,
-            price: item.product.price,
             title: item.product.title,
+            price: item.product.price,
+            imageUrl: item.product.imageUrl || null,
           },
           quantity: item.quantity,
         })),

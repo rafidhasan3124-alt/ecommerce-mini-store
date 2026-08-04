@@ -12,6 +12,7 @@ import {
   ShoppingBagIcon,
   ArrowRightIcon,
   ShieldCheckIcon,
+  Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
 
 interface User {
@@ -95,6 +96,14 @@ export default function ProfilePage() {
       bg: 'bg-emerald-50',
       title: 'Addresses',
       desc: 'Manage shipping addresses',
+    },
+    {
+      href: '/profile/settings',
+      icon: Cog6ToothIcon,
+      color: 'text-gray-600',
+      bg: 'bg-gray-50',
+      title: 'Account Settings',
+      desc: 'Update your name & phone',
     },
     {
       href: '/shop',

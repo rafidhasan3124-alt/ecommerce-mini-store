@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCartStore } from '@/store/cartStore';
@@ -37,8 +37,13 @@ function SuccessContent() {
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
+    // Guard: only run once even if the component re-renders
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+
     clearCart();
     toast.success('🎉 Order placed successfully!');
 

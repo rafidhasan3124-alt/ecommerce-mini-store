@@ -1,9 +1,24 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = request.nextUrl;
+    const q = searchParams.get('q') || '';
+    const category = searchParams.get('category') || '';
+
     const products = await prisma.product.findMany({
+      where: {
+        ...(q && {
+          OR: [
+            { title: { contains: q } },
+            { description: { contains: q } },
+          ],
+        }),
+        ...(category && category !== 'all' && {
+          category: { equals: category },
+        }),
+      },
       orderBy: { createdAt: 'desc' },
     });
 

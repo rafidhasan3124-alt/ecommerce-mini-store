@@ -69,7 +69,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <ShoppingBagIcon className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-gray-900">ShopStore</h1>
+            <h1 className="text-lg font-bold text-gray-900">Nexora</h1>
             <p className="text-xs text-blue-600 font-medium">Admin Panel</p>
           </div>
         </div>
@@ -112,7 +112,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   );
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-[#f0f2f5]">
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 z-20">
         <Sidebar />

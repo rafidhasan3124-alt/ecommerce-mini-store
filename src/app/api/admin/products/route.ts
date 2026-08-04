@@ -11,20 +11,21 @@ export async function POST(request: NextRequest) {
 
     const { title, description, price, imageUrl, category, stockQuantity, inStock } = await request.json();
 
-    // Create Stripe product and price (simplified)
-    // For MVP, we'll use a placeholder stripePriceId
-    const stripePriceId = `price_${Date.now()}`;
+    if (!title || !price) {
+      return NextResponse.json({ error: 'Title and price are required' }, { status: 400 });
+    }
 
+    // stripePriceId is left empty — checkout uses inline price_data so no Stripe Price ID is needed
     const product = await prisma.product.create({
       data: {
         title,
-        description,
+        description: description || null,
         price,
-        imageUrl,
-        category,
-        stripePriceId,
-        stockQuantity,
-        inStock,
+        imageUrl: imageUrl || null,
+        category: category || null,
+        stripePriceId: '',
+        stockQuantity: stockQuantity ?? 0,
+        inStock: inStock ?? true,
       },
     });
 
@@ -36,4 +37,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+}
